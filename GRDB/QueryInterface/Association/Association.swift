@@ -5,7 +5,20 @@
 public protocol Association: DerivableRequest {
     associatedtype OriginRowDecoder
     associatedtype RowDecoder
-    
+    associatedtype _Impl: _AssociationImpl
+    var _impl: _Impl { get set }
+}
+
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+/// :nodoc:
+public protocol _AssociationImpl {
+    var key: String { get set }
+    func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self
+    func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T>
+    func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery
+}
+
+extension Association {
     /// The association key defines how rows fetched from this association
     /// should be consumed.
     ///
@@ -30,19 +43,10 @@ public protocol Association: DerivableRequest {
     ///     for row in Row.fetchAll(db, request) {
     ///         let team: Team = row["custom"]
     ///     }
-    var key: String { get set }
+    public var key: String {
+        return _impl.key
+    }
     
-    /// :nodoc:
-    func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self
-    
-    /// :nodoc:
-    func joinedRequest(_ request: QueryInterfaceRequest<OriginRowDecoder>, joinOperator: JoinOperator) -> QueryInterfaceRequest<OriginRowDecoder>
-    
-    /// :nodoc:
-    func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery
-}
-
-extension Association {
     /// Creates an association with the given key.
     ///
     /// This new key impacts how rows fetched from the resulting association
@@ -59,7 +63,13 @@ extension Association {
     ///     }
     public func forKey(_ key: String) -> Self {
         var association = self
-        association.key = key
+        association._impl.key = key
+        return association
+    }
+    
+    private func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self {
+        var association = self
+        association._impl = _impl.mapQuery(transform)
         return association
     }
     
@@ -259,28 +269,28 @@ extension Association {
     /// associated record are selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func including<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.joinedQuery($0, joinOperator: .optional) }
+        return mapQuery { association._impl.joinedQuery($0, joinOperator: .optional) }
     }
     
     /// Creates an association that includes another one. The columns of the
     /// associated record are selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func including<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.joinedQuery($0, joinOperator: .required) }
+        return mapQuery { association._impl.joinedQuery($0, joinOperator: .required) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func joining<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.select([]).joinedQuery($0, joinOperator: .optional) }
+        return mapQuery { association.select([])._impl.joinedQuery($0, joinOperator: .optional) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func joining<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.select([]).joinedQuery($0, joinOperator: .required) }
+        return mapQuery { association.select([])._impl.joinedQuery($0, joinOperator: .required) }
     }
 }
 

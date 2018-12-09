@@ -66,22 +66,26 @@ public struct HasOneAssociation<Origin, Destination> : Association {
     
     /// :nodoc:
     public typealias RowDecoder = Destination
-    
+
+    /// :nodoc:
+    public var _impl: _HasOneAssociationImpl
+}
+
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+///
+/// :nodoc:
+public struct _HasOneAssociationImpl: _AssociationImpl {
     public var key: String
+    let joinCondition: JoinCondition
+    var query: JoinQuery
     
-    /// :nodoc:
-    public let joinCondition: JoinCondition
-    
-    /// :nodoc:
-    public var query: JoinQuery
-    
-    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> HasOneAssociation {
-        var association = self
-        association.query = transform(query)
-        return association
+    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _HasOneAssociationImpl {
+        var impl = self
+        impl.query = transform(query)
+        return impl
     }
     
-    public func joinedRequest(_ request: QueryInterfaceRequest<OriginRowDecoder>, joinOperator: JoinOperator) -> QueryInterfaceRequest<OriginRowDecoder> {
+    public func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T> {
         let join = Join(
             joinOperator: joinOperator,
             joinCondition: joinCondition,
@@ -177,9 +181,9 @@ extension TableRecord {
             foreignKeyRequest: foreignKeyRequest,
             originIsLeft: false)
         
-        return HasOneAssociation(
+        return HasOneAssociation(_impl: _HasOneAssociationImpl(
             key: key ?? Destination.databaseTableName,
             joinCondition: joinCondition,
-            query: JoinQuery(Destination.all().query))
+            query: JoinQuery(Destination.all().query)))
     }
 }
