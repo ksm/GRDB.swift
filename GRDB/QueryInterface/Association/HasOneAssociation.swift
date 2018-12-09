@@ -98,7 +98,7 @@ public struct _HasOneAssociationImpl: _AssociationImpl {
             joinOperator: joinOperator,
             joinCondition: joinCondition,
             query: self.query)
-        return query.appendingJoin(join, forKey: key)
+        return query.joined(with: join, on: key)
     }
 }
 

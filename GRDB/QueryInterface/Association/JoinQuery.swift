@@ -61,7 +61,7 @@ extension JoinQuery {
         return query
     }
     
-    func appendingJoin(_ join: Join, forKey key: String) -> JoinQuery {
+    func joined(with join: Join, on key: String) -> JoinQuery {
         var query = self
         if let existingJoin = query.joins.removeValue(forKey: key) {
             guard let mergedJoin = existingJoin.merged(with: join) else {
