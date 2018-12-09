@@ -493,7 +493,7 @@ struct JoinCondition: Equatable {
     var foreignKeyRequest: ForeignKeyRequest
     var originIsLeft: Bool
     
-    func sqlExpression(_ db: Database, leftAlias: TableAlias, rightAlias: TableAlias) throws -> SQLExpression? {
+    func sqlExpression(_ db: Database, leftAlias: TableAlias, rightAlias: TableAlias) throws -> SQLExpression {
         let foreignKeyMapping = try foreignKeyRequest.fetch(db).mapping
         let columnMapping: [(left: Column, right: Column)]
         if originIsLeft {
@@ -554,13 +554,11 @@ struct Join {
         sql += try " " + query.source.sourceSQL(db, &context)
         
         let rightAlias = query.alias!
-        let filters = try [
-            joinCondition.sqlExpression(db, leftAlias: leftAlias, rightAlias: rightAlias),
-            query.filterPromise.resolve(db)
-            ].compactMap { $0 }
-        if !filters.isEmpty {
-            sql += " ON " + filters.joined(operator: .and).expressionSQL(&context)
+        var filters = try [joinCondition.sqlExpression(db, leftAlias: leftAlias, rightAlias: rightAlias)]
+        if let filter = try query.filterPromise.resolve(db) {
+            filters.append(filter)
         }
+        sql += " ON " + filters.joined(operator: .and).expressionSQL(&context)
         
         for (_, join) in query.joins {
             sql += try " " + join.joinSQL(db, &context, leftAlias: rightAlias, isRequiredAllowed: isRequiredAllowed)

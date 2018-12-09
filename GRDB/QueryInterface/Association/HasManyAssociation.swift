@@ -66,38 +66,7 @@ public struct HasManyAssociation<Origin, Destination>: Association {
     public typealias RowDecoder = Destination
 
     /// :nodoc:
-    public var _impl: _HasManyAssociationImpl
-}
-
-/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
-///
-/// :nodoc:
-public struct _HasManyAssociationImpl: _AssociationImpl {
-    public var key: String
-    let joinCondition: JoinCondition
-    var query: JoinQuery
-    
-    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _HasManyAssociationImpl {
-        var impl = self
-        impl.query = transform(query)
-        return impl
-    }
-    
-    public func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T> {
-        let join = Join(
-            joinOperator: joinOperator,
-            joinCondition: joinCondition,
-            query: query)
-        return QueryInterfaceRequest(query: request.query.appendingJoin(join, forKey: key))
-    }
-    
-    public func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery {
-        let join = Join(
-            joinOperator: joinOperator,
-            joinCondition: joinCondition,
-            query: self.query)
-        return query.joined(with: join, on: key)
-    }
+    public var _impl: _JoinAssociationImpl
 }
 
 // Allow HasManyAssociation(...).filter(key: ...)
@@ -268,7 +237,7 @@ extension TableRecord {
             foreignKeyRequest: foreignKeyRequest,
             originIsLeft: false)
         
-        return HasManyAssociation(_impl: _HasManyAssociationImpl(
+        return HasManyAssociation(_impl: _JoinAssociationImpl(
             key: key ?? Destination.databaseTableName,
             joinCondition: joinCondition,
             query: JoinQuery(Destination.all().query)))

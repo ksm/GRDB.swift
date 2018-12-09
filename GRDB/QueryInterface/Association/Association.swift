@@ -21,6 +21,39 @@ public protocol _AssociationImpl {
     func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery
 }
 
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+///
+/// Implementation based on a join, suited for belongsTo, hasOne, hasMany
+///
+/// :nodoc:
+public struct _JoinAssociationImpl: _AssociationImpl {
+    public var key: String
+    let joinCondition: JoinCondition
+    var query: JoinQuery
+    
+    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _JoinAssociationImpl {
+        var impl = self
+        impl.query = transform(query)
+        return impl
+    }
+    
+    public func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T> {
+        let join = Join(
+            joinOperator: joinOperator,
+            joinCondition: joinCondition,
+            query: query)
+        return QueryInterfaceRequest(query: request.query.appendingJoin(join, forKey: key))
+    }
+    
+    public func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery {
+        let join = Join(
+            joinOperator: joinOperator,
+            joinCondition: joinCondition,
+            query: self.query)
+        return query.joined(with: join, on: key)
+    }
+}
+
 extension Association {
     /// The association key defines how rows fetched from this association
     /// should be consumed.
@@ -277,7 +310,7 @@ extension Association where OriginRowDecoder: MutablePersistableRecord {
             source: .table(tableName: "TODO", alias: nil),
             selection: [AllColumns()])
         return QueryInterfaceRequest(query: query)
-//        fatalError("not implemented")
+        
 //        // Goal: turn `JOIN association ON association.recordId = record.id`
 //        // into a regular request `SELECT * FROM association WHERE association.recordId = 123`
 //
@@ -293,9 +326,7 @@ extension Association where OriginRowDecoder: MutablePersistableRecord {
 //            .filter { db in
 //                // Build a join condition: `association.recordId = record.id`
 //                // We still need to replace `record.id` with the actual record id.
-//                guard let joinExpression = try self.joinCondition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias) else {
-//                    fatalError("Can't request from record without join condition")
-//                }
+//                let joinExpression = try self.joinCondition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias)
 //
 //                // Serialize record: ["id": 123, ...]
 //                // We do it as late as possible, when request is about to be
