@@ -1,9 +1,9 @@
 extension QueryInterfaceRequest where RowDecoder: TableRecord {
-    func joining<A: Association>(_ joinOperator: AssociationJoinOperator, _ association: A)
+    func joining<A: Association>(_ joinOperator: JoinOperator, _ association: A)
         -> QueryInterfaceRequest<RowDecoder>
         where A.OriginRowDecoder == RowDecoder
     {
-        let join = AssociationJoin(
+        let join = Join(
             joinOperator: joinOperator,
             joinCondition: association.joinCondition,
             query: association.request.query)

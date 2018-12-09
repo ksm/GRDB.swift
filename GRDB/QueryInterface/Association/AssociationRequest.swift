@@ -4,14 +4,14 @@
 /// the AssociationRequest is (`b.*` + `b.name = 'foo'`).
 /// :nodoc:
 public struct AssociationRequest<T> {
-    let query: AssociationQuery
+    let query: JoinQuery
     
-    init(query: AssociationQuery) {
+    init(query: JoinQuery) {
         self.query = query
     }
     
     init(_ request: QueryInterfaceRequest<T>) {
-        self.init(query: AssociationQuery(request.query))
+        self.init(query: JoinQuery(request.query))
     }
 }
 
@@ -36,11 +36,11 @@ extension AssociationRequest {
         return AssociationRequest(query: query.qualified(with: alias))
     }
     
-    func joining<A: Association>(_ joinOperator: AssociationJoinOperator, _ association: A)
+    func joining<A: Association>(_ joinOperator: JoinOperator, _ association: A)
         -> AssociationRequest
         where A.OriginRowDecoder == T
     {
-        let join = AssociationJoin(
+        let join = Join(
             joinOperator: joinOperator,
             joinCondition: association.joinCondition,
             query: association.request.query)
