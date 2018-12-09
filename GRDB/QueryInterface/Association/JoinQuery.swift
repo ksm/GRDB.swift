@@ -1,4 +1,6 @@
-struct JoinQuery {
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+/// TODO: Hide if possible
+public struct JoinQuery {
     var source: SQLSource
     var selection: [SQLSelectable]
     var filterPromise: DatabasePromise<SQLExpression?>
@@ -59,7 +61,15 @@ extension JoinQuery {
         return query
     }
     
-    func appendingJoin(_ join: Join, forKey key: String) -> JoinQuery {
+    func joining<A: Association>(_ joinOperator: JoinOperator, _ association: A) -> JoinQuery {
+        let join = Join(
+            joinOperator: joinOperator,
+            joinCondition: association.joinCondition,
+            query: association.query)
+        return joining(join, forKey: association.key)
+    }
+    
+    private func joining(_ join: Join, forKey key: String) -> JoinQuery {
         var query = self
         if let existingJoin = query.joins.removeValue(forKey: key) {
             guard let mergedJoin = existingJoin.merged(with: join) else {

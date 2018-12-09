@@ -304,8 +304,6 @@
 		5653EB9820961FC000F46237 /* ForeignKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8920961FBF00F46237 /* ForeignKey.swift */; };
 		5653EB9920961FC000F46237 /* ForeignKeyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8A20961FBF00F46237 /* ForeignKeyRequest.swift */; };
 		5653EB9A20961FC000F46237 /* ForeignKeyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8A20961FBF00F46237 /* ForeignKeyRequest.swift */; };
-		5653EB9B20961FC000F46237 /* AssociationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8B20961FBF00F46237 /* AssociationRequest.swift */; };
-		5653EB9C20961FC000F46237 /* AssociationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8B20961FBF00F46237 /* AssociationRequest.swift */; };
 		5653EB9D20961FC000F46237 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8C20961FBF00F46237 /* Association.swift */; };
 		5653EB9E20961FC000F46237 /* Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB8C20961FBF00F46237 /* Association.swift */; };
 		5653EBA220961FCA00F46237 /* QueryInterfaceRequest+Association.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EBA120961FCA00F46237 /* QueryInterfaceRequest+Association.swift */; };
@@ -1110,7 +1108,6 @@
 		5653EB8820961FBF00F46237 /* HasManyAssociation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HasManyAssociation.swift; sourceTree = "<group>"; };
 		5653EB8920961FBF00F46237 /* ForeignKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForeignKey.swift; sourceTree = "<group>"; };
 		5653EB8A20961FBF00F46237 /* ForeignKeyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForeignKeyRequest.swift; sourceTree = "<group>"; };
-		5653EB8B20961FBF00F46237 /* AssociationRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationRequest.swift; sourceTree = "<group>"; };
 		5653EB8C20961FBF00F46237 /* Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Association.swift; sourceTree = "<group>"; };
 		5653EBA120961FCA00F46237 /* QueryInterfaceRequest+Association.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "QueryInterfaceRequest+Association.swift"; sourceTree = "<group>"; };
 		5653EBA620961FE600F46237 /* AssociationParallelSQLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationParallelSQLTests.swift; sourceTree = "<group>"; };
@@ -1667,7 +1664,6 @@
 			children = (
 				5653EB8C20961FBF00F46237 /* Association.swift */,
 				563EF43A2161183E007DAACD /* AssociationAggregate.swift */,
-				5653EB8B20961FBF00F46237 /* AssociationRequest.swift */,
 				5653EB8520961FBF00F46237 /* BelongsToAssociation.swift */,
 				5653EB8920961FBF00F46237 /* ForeignKey.swift */,
 				5653EB8A20961FBF00F46237 /* ForeignKeyRequest.swift */,
@@ -2328,7 +2324,6 @@
 				563EF4502161F1A8007DAACD /* Inflections.swift in Sources */,
 				566B910A1FA4C3970012D5B0 /* Database+Statements.swift in Sources */,
 				566B91241FA4CF810012D5B0 /* Database+Schema.swift in Sources */,
-				5653EB9B20961FC000F46237 /* AssociationRequest.swift in Sources */,
 				56CEB5121EAA324B00BFAF62 /* FTS3+QueryInterfaceRequest.swift in Sources */,
 				5659F4911EA8D964004A4992 /* ReadWriteBox.swift in Sources */,
 				566A842920413D6F00E50BFD /* DatabaseSnapshot.swift in Sources */,
@@ -2816,7 +2811,6 @@
 				563EF4512161F1A8007DAACD /* Inflections.swift in Sources */,
 				566B910D1FA4C3970012D5B0 /* Database+Statements.swift in Sources */,
 				566B91271FA4CF810012D5B0 /* Database+Schema.swift in Sources */,
-				5653EB9C20961FC000F46237 /* AssociationRequest.swift in Sources */,
 				56CEB5151EAA324B00BFAF62 /* FTS3+QueryInterfaceRequest.swift in Sources */,
 				5659F4941EA8D964004A4992 /* ReadWriteBox.swift in Sources */,
 				566A842A20413D8500E50BFD /* DatabaseSnapshot.swift in Sources */,

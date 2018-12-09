@@ -73,7 +73,7 @@ public struct HasOneAssociation<Origin, Destination> : Association {
     public let joinCondition: JoinCondition
     
     /// :nodoc:
-    public var request: AssociationRequest<Destination>
+    public var query: JoinQuery
     
     public func forKey(_ key: String) -> HasOneAssociation<Origin, Destination> {
         var association = self
@@ -82,9 +82,9 @@ public struct HasOneAssociation<Origin, Destination> : Association {
     }
     
     /// :nodoc:
-    public func mapRequest(_ transform: (AssociationRequest<Destination>) -> AssociationRequest<Destination>) -> HasOneAssociation<Origin, Destination> {
+    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> HasOneAssociation<Origin, Destination> {
         var association = self
-        association.request = transform(request)
+        association.query = transform(query)
         return association
     }
 }
@@ -171,6 +171,6 @@ extension TableRecord {
         return HasOneAssociation(
             key: key ?? Destination.databaseTableName,
             joinCondition: joinCondition,
-            request: AssociationRequest(Destination.all()))
+            query: JoinQuery(Destination.all().query))
     }
 }

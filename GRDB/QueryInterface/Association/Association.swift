@@ -49,13 +49,13 @@ public protocol Association: DerivableRequest {
     func forKey(_ key: String) -> Self
     
     /// :nodoc:
-    var request: AssociationRequest<RowDecoder> { get }
+    var query: JoinQuery { get }
     
     /// :nodoc:
     var joinCondition: JoinCondition { get }
     
     /// :nodoc:
-    func mapRequest(_ transform: (AssociationRequest<RowDecoder>) -> AssociationRequest<RowDecoder>) -> Self
+    func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self
 }
 
 extension Association {
@@ -81,7 +81,7 @@ extension Association {
     ///         .select([Column("color")])
     ///     var request = Player.including(required: association)
     public func select(_ selection: [SQLSelectable]) -> Self {
-        return mapRequest { $0.select(selection) }
+        return mapQuery { $0.select(selection) }
     }
     
     /// Creates an association with the provided *predicate promise* added to
@@ -97,7 +97,7 @@ extension Association {
     ///     let association = Player.team.filter { db in true }
     ///     var request = Player.including(required: association)
     public func filter(_ predicate: @escaping (Database) throws -> SQLExpressible) -> Self {
-        return mapRequest { $0.filter(predicate) }
+        return mapQuery { $0.filter(predicate) }
     }
     
     /// Creates an association with the provided *orderings promise*.
@@ -125,7 +125,7 @@ extension Association {
     ///         .order{ _ in [Column("name")] }
     ///     var request = Player.including(required: association)
     public func order(_ orderings: @escaping (Database) throws -> [SQLOrderingTerm]) -> Self {
-        return mapRequest { $0.order(orderings) }
+        return mapQuery { $0.order(orderings) }
     }
     
     /// Creates an association that reverses applied orderings.
@@ -149,7 +149,7 @@ extension Association {
     ///     let association = Player.team.reversed()
     ///     var request = Player.including(required: association)
     public func reversed() -> Self {
-        return mapRequest { $0.reversed() }
+        return mapQuery { $0.reversed() }
     }
     
     /// Creates an association with the given key.
@@ -207,7 +207,7 @@ extension Association {
     ///         .including(required: Player.team.aliased(teamAlias))
     ///         .filter(sql: "custom.color = ?", arguments: ["red"])
     public func aliased(_ alias: TableAlias) -> Self {
-        return mapRequest { $0.aliased(alias) }
+        return mapQuery { $0.qualified(with: alias) }
     }
 }
 
@@ -230,6 +230,7 @@ extension Association {
 ///     let request = Book
 ///         .include(required: Book.author)
 ///         .include(required: Book.author)
+/// TODO: Hide if possible
 public struct JoinCondition: Equatable {
     var foreignKeyRequest: ForeignKeyRequest
     var originIsLeft: Bool
@@ -254,28 +255,28 @@ extension Association {
     /// associated record are selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func including<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapRequest { $0.joining(.optional, association) }
+        return mapQuery { $0.joining(.optional, association) }
     }
     
     /// Creates an association that includes another one. The columns of the
     /// associated record are selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func including<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapRequest { $0.joining(.required, association) }
+        return mapQuery { $0.joining(.required, association) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func joining<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapRequest { $0.joining(.optional, association.select([])) }
+        return mapQuery { $0.joining(.optional, association.select([])) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func joining<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapRequest { $0.joining(.required, association.select([])) }
+        return mapQuery { $0.joining(.required, association.select([])) }
     }
 }
 
@@ -301,9 +302,9 @@ extension Association where OriginRowDecoder: MutablePersistableRecord {
         let associationAlias = TableAlias()
         let recordAlias = TableAlias()
         
-        // Turn the association request into a query interface request:
+        // Turn the association query into a query interface request:
         // JOIN association -> SELECT FROM association
-        return QueryInterfaceRequest(request)
+        return QueryInterfaceRequest(query: query)
             
             // Turn the JOIN condition into a regular WHERE condition
             .filter { db in
