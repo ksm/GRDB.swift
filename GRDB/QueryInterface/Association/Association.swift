@@ -10,6 +10,9 @@ public protocol Association: DerivableRequest {
 }
 
 /// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+///
+/// A type-erased association.
+///
 /// :nodoc:
 public protocol _AssociationImpl {
     var key: String { get set }
