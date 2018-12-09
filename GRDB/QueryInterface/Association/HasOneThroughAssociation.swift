@@ -27,16 +27,16 @@ public struct _HasOneThroughAssociationImpl: _AssociationImpl {
         return impl
     }
     
-    public func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T> {
+    public func add<T>(_ kind: JoinKind, to request: QueryInterfaceRequest<T>) -> QueryInterfaceRequest<T> {
         return pivot
-            .mapQuery { target.joinedQuery($0.select([]), joinOperator: joinOperator) }
-            .joinedRequest(request, joinOperator: joinOperator)
+            .mapQuery { target.add(kind, to: $0.select([])) }
+            .add(kind, to: request)
     }
     
-    public func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery {
+    public func add(_ kind: JoinKind, to query: JoinQuery) -> JoinQuery {
         return pivot
-            .mapQuery { target.joinedQuery($0.select([]), joinOperator: joinOperator) }
-            .joinedQuery(query, joinOperator: joinOperator)
+            .mapQuery { target.add(kind, to: $0.select([])) }
+            .add(kind, to: query)
     }
 }
 

@@ -17,8 +17,8 @@ public protocol Association: DerivableRequest {
 public protocol _AssociationImpl {
     var key: String { get set }
     func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self
-    func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T>
-    func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery
+    func add<T>(_ kind: JoinKind, to request: QueryInterfaceRequest<T>) -> QueryInterfaceRequest<T>
+    func add(_ kind: JoinKind, to query: JoinQuery) -> JoinQuery
 }
 
 /// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
@@ -28,7 +28,7 @@ public protocol _AssociationImpl {
 /// :nodoc:
 public struct _JoinAssociationImpl: _AssociationImpl {
     public var key: String
-    let joinCondition: JoinCondition
+    let condition: JoinCondition
     var query: JoinQuery
     
     public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _JoinAssociationImpl {
@@ -37,18 +37,18 @@ public struct _JoinAssociationImpl: _AssociationImpl {
         return impl
     }
     
-    public func joinedRequest<T>(_ request: QueryInterfaceRequest<T>, joinOperator: JoinOperator) -> QueryInterfaceRequest<T> {
+    public func add<T>(_ kind: JoinKind, to request: QueryInterfaceRequest<T>) -> QueryInterfaceRequest<T> {
         let join = Join(
-            joinOperator: joinOperator,
-            joinCondition: joinCondition,
+            kind: kind,
+            condition: condition,
             query: query)
-        return QueryInterfaceRequest(query: request.query.appendingJoin(join, forKey: key))
+        return QueryInterfaceRequest(query: request.query.joined(with: join, on: key))
     }
     
-    public func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery {
+    public func add(_ kind: JoinKind, to query: JoinQuery) -> JoinQuery {
         let join = Join(
-            joinOperator: joinOperator,
-            joinCondition: joinCondition,
+            kind: kind,
+            condition: condition,
             query: self.query)
         return query.joined(with: join, on: key)
     }
@@ -266,28 +266,28 @@ extension Association {
     /// associated record are selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func including<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association._impl.joinedQuery($0, joinOperator: .optional) }
+        return mapQuery { association._impl.add(.optional, to: $0) }
     }
     
     /// Creates an association that includes another one. The columns of the
     /// associated record are selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func including<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association._impl.joinedQuery($0, joinOperator: .required) }
+        return mapQuery { association._impl.add(.required, to: $0) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association does not
     /// require that the associated database table contains a matching row.
     public func joining<A: Association>(optional association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.select([])._impl.joinedQuery($0, joinOperator: .optional) }
+        return mapQuery { association.select([])._impl.add(.optional, to: $0) }
     }
     
     /// Creates an association that joins another one. The columns of the
     /// associated record are not selected. The returned association requires
     /// that the associated database table contains a matching row.
     public func joining<A: Association>(required association: A) -> Self where A.OriginRowDecoder == RowDecoder {
-        return mapQuery { association.select([])._impl.joinedQuery($0, joinOperator: .required) }
+        return mapQuery { association.select([])._impl.add(.required, to: $0) }
     }
 }
 
@@ -326,7 +326,7 @@ extension Association where OriginRowDecoder: MutablePersistableRecord {
 //            .filter { db in
 //                // Build a join condition: `association.recordId = record.id`
 //                // We still need to replace `record.id` with the actual record id.
-//                let joinExpression = try self.joinCondition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias)
+//                let joinExpression = try self.condition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias)
 //
 //                // Serialize record: ["id": 123, ...]
 //                // We do it as late as possible, when request is about to be

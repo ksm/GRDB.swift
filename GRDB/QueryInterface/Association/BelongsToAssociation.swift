@@ -150,7 +150,7 @@ extension TableRecord {
         
         return BelongsToAssociation(_impl: _JoinAssociationImpl(
             key: key ?? Destination.databaseTableName,
-            joinCondition: joinCondition,
+            condition: joinCondition,
             query: JoinQuery(Destination.all().query)))
     }
 }

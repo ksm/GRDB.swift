@@ -12,6 +12,8 @@
 		560B794F21BD479000A0E3E7 /* HasOneThroughAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560B794D21BD478F00A0E3E7 /* HasOneThroughAssociation.swift */; };
 		560B795421BD5F3B00A0E3E7 /* AssociationHasOneThroughSQLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560B795321BD5F3B00A0E3E7 /* AssociationHasOneThroughSQLTests.swift */; };
 		560B795521BD5F3B00A0E3E7 /* AssociationHasOneThroughSQLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560B795321BD5F3B00A0E3E7 /* AssociationHasOneThroughSQLTests.swift */; };
+		560B795C21BD865400A0E3E7 /* Join.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560B795B21BD865400A0E3E7 /* Join.swift */; };
+		560B795D21BD865400A0E3E7 /* Join.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560B795B21BD865400A0E3E7 /* Join.swift */; };
 		5613ED6121A95E6100DC7A68 /* ValueObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5613ED5921A95E6100DC7A68 /* ValueObservation.swift */; };
 		5613ED6221A95E6100DC7A68 /* ValueObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5613ED5921A95E6100DC7A68 /* ValueObservation.swift */; };
 		5613ED6321A95E6100DC7A68 /* ValueObservation+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5613ED5A21A95E6100DC7A68 /* ValueObservation+Combine.swift */; };
@@ -125,8 +127,6 @@
 		5653EB4220961F6100F46237 /* BelongsToAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3720961F6000F46237 /* BelongsToAssociation.swift */; };
 		5653EB4320961F6100F46237 /* HasOneAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3820961F6000F46237 /* HasOneAssociation.swift */; };
 		5653EB4420961F6100F46237 /* HasOneAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3820961F6000F46237 /* HasOneAssociation.swift */; };
-		5653EB4520961F6100F46237 /* JoinQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3920961F6000F46237 /* JoinQuery.swift */; };
-		5653EB4620961F6100F46237 /* JoinQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3920961F6000F46237 /* JoinQuery.swift */; };
 		5653EB4720961F6100F46237 /* HasManyAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3A20961F6000F46237 /* HasManyAssociation.swift */; };
 		5653EB4820961F6100F46237 /* HasManyAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3A20961F6000F46237 /* HasManyAssociation.swift */; };
 		5653EB4920961F6100F46237 /* ForeignKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5653EB3B20961F6000F46237 /* ForeignKey.swift */; };
@@ -672,6 +672,7 @@
 		560A37AA1C90085D00949E71 /* DatabasePoolConcurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabasePoolConcurrencyTests.swift; sourceTree = "<group>"; };
 		560B794D21BD478F00A0E3E7 /* HasOneThroughAssociation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HasOneThroughAssociation.swift; sourceTree = "<group>"; };
 		560B795321BD5F3B00A0E3E7 /* AssociationHasOneThroughSQLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociationHasOneThroughSQLTests.swift; sourceTree = "<group>"; };
+		560B795B21BD865400A0E3E7 /* Join.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Join.swift; sourceTree = "<group>"; };
 		560C97C61BFD0B8400BF8471 /* DatabaseFunctionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseFunctionTests.swift; sourceTree = "<group>"; };
 		560D923E1C672C3E00F4F92B /* DatabaseValueConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseValueConvertible.swift; sourceTree = "<group>"; };
 		560D923F1C672C3E00F4F92B /* StatementColumnConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatementColumnConvertible.swift; sourceTree = "<group>"; };
@@ -745,7 +746,6 @@
 		564F9C2C1F075DD200877A00 /* DatabaseFunction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseFunction.swift; sourceTree = "<group>"; };
 		5653EB3720961F6000F46237 /* BelongsToAssociation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BelongsToAssociation.swift; sourceTree = "<group>"; };
 		5653EB3820961F6000F46237 /* HasOneAssociation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HasOneAssociation.swift; sourceTree = "<group>"; };
-		5653EB3920961F6000F46237 /* JoinQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinQuery.swift; sourceTree = "<group>"; };
 		5653EB3A20961F6000F46237 /* HasManyAssociation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HasManyAssociation.swift; sourceTree = "<group>"; };
 		5653EB3B20961F6000F46237 /* ForeignKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForeignKey.swift; sourceTree = "<group>"; };
 		5653EB3C20961F6000F46237 /* ForeignKeyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForeignKeyRequest.swift; sourceTree = "<group>"; };
@@ -1217,8 +1217,10 @@
 			children = (
 				5653EB3620961F6000F46237 /* Association */,
 				56CEB5401EAA359A00BFAF62 /* Column.swift */,
+				5653EB3C20961F6000F46237 /* ForeignKeyRequest.swift */,
 				56CEB5101EAA324B00BFAF62 /* FTS3+QueryInterfaceRequest.swift */,
 				56CEB5181EAA328900BFAF62 /* FTS5+QueryInterface.swift */,
+				560B795B21BD865400A0E3E7 /* Join.swift */,
 				5605F18C1C6B1A8700235C62 /* QueryInterfaceQuery.swift */,
 				56300B6F1C53F592005A543B /* QueryInterfaceRequest.swift */,
 				5653EB5320961F7D00F46237 /* QueryInterfaceRequest+Association.swift */,
@@ -1280,11 +1282,9 @@
 				563EF4362161182C007DAACD /* AssociationAggregate.swift */,
 				5653EB3720961F6000F46237 /* BelongsToAssociation.swift */,
 				5653EB3B20961F6000F46237 /* ForeignKey.swift */,
-				5653EB3C20961F6000F46237 /* ForeignKeyRequest.swift */,
 				5653EB3A20961F6000F46237 /* HasManyAssociation.swift */,
 				5653EB3820961F6000F46237 /* HasOneAssociation.swift */,
 				560B794D21BD478F00A0E3E7 /* HasOneThroughAssociation.swift */,
-				5653EB3920961F6000F46237 /* JoinQuery.swift */,
 			);
 			path = Association;
 			sourceTree = "<group>";
@@ -2039,7 +2039,7 @@
 				F3BA800C1CFB286F003DC1BA /* DatabaseError.swift in Sources */,
 				566B91301FA4D0CC0012D5B0 /* StatementAuthorizer.swift in Sources */,
 				F3BA80221CFB288C003DC1BA /* NSNumber.swift in Sources */,
-				5653EB4620961F6100F46237 /* JoinQuery.swift in Sources */,
+				560B795D21BD865400A0E3E7 /* Join.swift in Sources */,
 				F3BA80321CFB28A4003DC1BA /* FetchedRecordsController.swift in Sources */,
 				5659F48D1EA8D94E004A4992 /* Utils.swift in Sources */,
 				F3BA80231CFB288C003DC1BA /* NSString.swift in Sources */,
@@ -2348,7 +2348,7 @@
 				F3BA80681CFB2E55003DC1BA /* DatabaseError.swift in Sources */,
 				566B912D1FA4D0CC0012D5B0 /* StatementAuthorizer.swift in Sources */,
 				F3BA807E1CFB2E61003DC1BA /* NSNumber.swift in Sources */,
-				5653EB4520961F6100F46237 /* JoinQuery.swift in Sources */,
+				560B795C21BD865400A0E3E7 /* Join.swift in Sources */,
 				F3BA808E1CFB2E7A003DC1BA /* FetchedRecordsController.swift in Sources */,
 				5659F48A1EA8D94E004A4992 /* Utils.swift in Sources */,
 				F3BA807F1CFB2E61003DC1BA /* NSString.swift in Sources */,

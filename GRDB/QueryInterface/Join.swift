@@ -1,3 +1,186 @@
+// MARK: - JoinKind
+
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+///
+/// JoinKind is not to be mismatched with SQL join operators (inner join,
+/// left join).
+///
+/// JoinKind is designed to be hierarchically nested, unlike
+/// SQL join operators.
+///
+/// Consider the following request for (A, B, C) tuples:
+///
+///     let r = A.including(optional: A.b.including(required: B.c))
+///
+/// It chains two associations, the first optional, the second required.
+///
+/// It looks like it means: "Give me all As, along with their Bs, granted those
+/// Bs have their Cs. For As whose B has no C, give me a nil B".
+///
+/// It can not be expressed as one left join, and a regular join, as below,
+/// Because this would not honor the first optional:
+///
+///     -- dubious
+///     SELECT a.*, b.*, c.*
+///     FROM a
+///     LEFT JOIN b ON ...
+///     JOIN c ON ...
+///
+/// Instead, it should:
+/// - allow (A + missing (B + C))
+/// - prevent (A + (B + missing C)).
+///
+/// This can be expressed in SQL with two left joins, and an extra condition:
+///
+///     -- likely correct
+///     SELECT a.*, b.*, c.*
+///     FROM a
+///     LEFT JOIN b ON ...
+///     LEFT JOIN c ON ...
+///     WHERE NOT((b.id IS NOT NULL) AND (c.id IS NULL)) -- no B without C
+///
+/// This is currently not implemented, and requires a little more thought.
+/// I don't even know if inventing a whole new way to perform joins should even
+/// be on the table. But we have a hierarchical way to express joined queries,
+/// and they have a meaning:
+///
+///     // what is my meaning?
+///     A.including(optional: A.b.including(required: B.c))
+/// TODO: Hide if possible
+public enum JoinKind {
+    case required, optional
+}
+
+// MARK: - JoinCondition
+
+/// The condition that links two joined tables.
+///
+/// We only support one kind of join condition, today: foreign keys.
+///
+///     SELECT ...
+///     FROM book
+///     JOIN author ON author.id = book.authorId
+///                    <--the join condition--->
+///
+/// When we eventually add support for new ways to join tables, JoinCondition
+/// is the type we'll need to update.
+///
+/// The Equatable conformance is used when we merge associations. Two
+/// associations can be merged if and only if their join conditions
+/// are equal:
+///
+///     let request = Book
+///         .include(required: Book.author)
+///         .include(required: Book.author)
+struct JoinCondition: Equatable {
+    var foreignKeyRequest: ForeignKeyRequest
+    var originIsLeft: Bool
+    
+    func sqlExpression(_ db: Database, leftAlias: TableAlias, rightAlias: TableAlias) throws -> SQLExpression {
+        let foreignKeyMapping = try foreignKeyRequest.fetch(db).mapping
+        let columnMapping: [(left: Column, right: Column)]
+        if originIsLeft {
+            columnMapping = foreignKeyMapping.map { (left: Column($0.origin), right: Column($0.destination)) }
+        } else {
+            columnMapping = foreignKeyMapping.map { (left: Column($0.destination), right: Column($0.origin)) }
+        }
+        
+        return columnMapping
+            .map { $0.right.qualifiedExpression(with: rightAlias) == $0.left.qualifiedExpression(with: leftAlias) }
+            .joined(operator: .and)
+    }
+}
+
+// MARK: - Join
+
+struct Join {
+    var kind: JoinKind
+    var condition: JoinCondition
+    var query: JoinQuery
+    
+    var finalizedJoin: Join {
+        var join = self
+        join.query = query.finalizedQuery
+        return join
+    }
+    
+    var finalizedAliases: [TableAlias] {
+        return query.finalizedAliases
+    }
+    
+    var finalizedSelection: [SQLSelectable] {
+        return query.finalizedSelection
+    }
+    
+    var finalizedOrdering: QueryOrdering {
+        return query.finalizedOrdering
+    }
+    
+    func finalizedRowAdapter(_ db: Database, fromIndex startIndex: Int, forKeyPath keyPath: [String]) throws -> (adapter: RowAdapter, endIndex: Int)? {
+        return try query.finalizedRowAdapter(db, fromIndex: startIndex, forKeyPath: keyPath)
+    }
+    
+    /// precondition: query is the result of finalizedQuery
+    func joinSQL(_ db: Database,_ context: inout SQLGenerationContext, leftAlias: TableAlias, isRequiredAllowed: Bool) throws -> String {
+        var isRequiredAllowed = isRequiredAllowed
+        var sql = ""
+        switch kind {
+        case .optional:
+            isRequiredAllowed = false
+            sql += "LEFT JOIN"
+        case .required:
+            guard isRequiredAllowed else {
+                // TODO: chainOptionalRequired
+                fatalError("Not implemented: chaining a required association behind an optional association")
+            }
+            sql += "JOIN"
+        }
+        
+        sql += try " " + query.source.sourceSQL(db, &context)
+        
+        let rightAlias = query.alias!
+        var filters = try [condition.sqlExpression(db, leftAlias: leftAlias, rightAlias: rightAlias)]
+        if let filter = try query.filterPromise.resolve(db) {
+            filters.append(filter)
+        }
+        sql += " ON " + filters.joined(operator: .and).expressionSQL(&context)
+        
+        for (_, join) in query.joins {
+            sql += try " " + join.joinSQL(db, &context, leftAlias: rightAlias, isRequiredAllowed: isRequiredAllowed)
+        }
+        
+        return sql
+    }
+    
+    /// Returns nil if joins can't be merged (conflict in condition, query...)
+    func merged(with other: Join) -> Join? {
+        guard condition == other.condition else {
+            // can't merge
+            return nil
+        }
+        
+        guard let mergedQuery = query.merged(with: other.query) else {
+            // can't merge
+            return nil
+        }
+        
+        let mergedKind: JoinKind
+        switch (kind, other.kind) {
+        case (.required, _), (_, .required):
+            mergedKind = .required
+        default:
+            mergedKind = .optional
+        }
+        
+        return Join(
+            kind: mergedKind,
+            condition: condition,
+            query: mergedQuery)
+    }
+}
+
+// MARK: - JoinQuery
+
 /// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
 /// TODO: Hide if possible
 public struct JoinQuery {
