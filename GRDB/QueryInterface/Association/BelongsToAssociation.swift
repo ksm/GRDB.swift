@@ -72,18 +72,27 @@ public struct BelongsToAssociation<Origin, Destination>: Association {
     
     /// :nodoc:
     public var query: JoinQuery
-
-    public func forKey(_ key: String) -> BelongsToAssociation<Origin, Destination> {
-        var association = self
-        association.key = key
-        return association
-    }
     
-    /// :nodoc:
-    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> BelongsToAssociation<Origin, Destination> {
+    public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> BelongsToAssociation {
         var association = self
         association.query = transform(query)
         return association
+    }
+    
+    public func joinedRequest(_ request: QueryInterfaceRequest<OriginRowDecoder>, joinOperator: JoinOperator) -> QueryInterfaceRequest<OriginRowDecoder> {
+        let join = Join(
+            joinOperator: joinOperator,
+            joinCondition: joinCondition,
+            query: query)
+        return QueryInterfaceRequest(query: request.query.appendingJoin(join, forKey: key))
+    }
+    
+    public func joinedQuery(_ query: JoinQuery, joinOperator: JoinOperator) -> JoinQuery {
+        let join = Join(
+            joinOperator: joinOperator,
+            joinCondition: joinCondition,
+            query: self.query)
+        return query.appendingJoin(join, forKey: key)
     }
 }
 

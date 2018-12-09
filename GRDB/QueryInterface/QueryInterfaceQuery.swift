@@ -465,7 +465,8 @@ extension QueryInterfaceQuery {
 ///
 ///     // what is my meaning?
 ///     A.including(optional: A.b.including(required: B.c))
-enum JoinOperator {
+/// TODO: Hide if possible
+public enum JoinOperator {
     case required, optional
 }
 

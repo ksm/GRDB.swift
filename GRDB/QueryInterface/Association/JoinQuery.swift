@@ -61,15 +61,7 @@ extension JoinQuery {
         return query
     }
     
-    func joining<A: Association>(_ joinOperator: JoinOperator, _ association: A) -> JoinQuery {
-        let join = Join(
-            joinOperator: joinOperator,
-            joinCondition: association.joinCondition,
-            query: association.query)
-        return joining(join, forKey: association.key)
-    }
-    
-    private func joining(_ join: Join, forKey key: String) -> JoinQuery {
+    func appendingJoin(_ join: Join, forKey key: String) -> JoinQuery {
         var query = self
         if let existingJoin = query.joins.removeValue(forKey: key) {
             guard let mergedJoin = existingJoin.merged(with: join) else {
