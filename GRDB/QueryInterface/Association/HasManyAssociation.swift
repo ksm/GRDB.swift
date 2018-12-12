@@ -239,7 +239,7 @@ extension TableRecord {
         
         return HasManyAssociation(_impl: _JoinAssociationImpl(
             key: key ?? Destination.databaseTableName,
-            condition: joinCondition,
-            query: JoinQuery(Destination.all().query)))
+            query: JoinQuery(Destination.all().query),
+            joinCondition: joinCondition))
     }
 }

@@ -21,6 +21,16 @@ public struct _HasOneThroughAssociationImpl: _AssociationImpl {
         set { target.key = newValue }
     }
     
+    public var query: JoinQuery {
+        return pivot
+            .mapQuery { target.add(.required, to: $0.select([])) }
+            .query
+    }
+    
+    public var joinCondition: JoinCondition {
+        return pivot.joinCondition
+    }
+    
     public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _HasOneThroughAssociationImpl {
         var impl = self
         impl.target = impl.target.mapQuery(transform)

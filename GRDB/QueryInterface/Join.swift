@@ -53,6 +53,8 @@ public enum JoinKind {
 
 // MARK: - JoinCondition
 
+/// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
+///
 /// The condition that links two joined tables.
 ///
 /// We only support one kind of join condition, today: foreign keys.
@@ -72,7 +74,8 @@ public enum JoinKind {
 ///     let request = Book
 ///         .include(required: Book.author)
 ///         .include(required: Book.author)
-struct JoinCondition: Equatable {
+/// TODO: Hide if possible
+public struct JoinCondition: Equatable {
     var foreignKeyRequest: ForeignKeyRequest
     var originIsLeft: Bool
     

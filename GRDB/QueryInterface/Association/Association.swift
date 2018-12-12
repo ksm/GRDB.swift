@@ -16,6 +16,8 @@ public protocol Association: DerivableRequest {
 /// :nodoc:
 public protocol _AssociationImpl {
     var key: String { get set }
+    var query: JoinQuery { get }
+    var joinCondition: JoinCondition { get }
     func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> Self
     func add<T>(_ kind: JoinKind, to request: QueryInterfaceRequest<T>) -> QueryInterfaceRequest<T>
     func add(_ kind: JoinKind, to query: JoinQuery) -> JoinQuery
@@ -28,8 +30,8 @@ public protocol _AssociationImpl {
 /// :nodoc:
 public struct _JoinAssociationImpl: _AssociationImpl {
     public var key: String
-    let condition: JoinCondition
-    var query: JoinQuery
+    public var query: JoinQuery
+    public var joinCondition: JoinCondition
     
     public func mapQuery(_ transform: (JoinQuery) -> JoinQuery) -> _JoinAssociationImpl {
         var impl = self
@@ -40,7 +42,7 @@ public struct _JoinAssociationImpl: _AssociationImpl {
     public func add<T>(_ kind: JoinKind, to request: QueryInterfaceRequest<T>) -> QueryInterfaceRequest<T> {
         let join = Join(
             kind: kind,
-            condition: condition,
+            condition: joinCondition,
             query: query)
         return QueryInterfaceRequest(query: request.query.joined(with: join, on: key))
     }
@@ -48,7 +50,7 @@ public struct _JoinAssociationImpl: _AssociationImpl {
     public func add(_ kind: JoinKind, to query: JoinQuery) -> JoinQuery {
         let join = Join(
             kind: kind,
-            condition: condition,
+            condition: joinCondition,
             query: self.query)
         return query.joined(with: join, on: key)
     }
@@ -306,42 +308,37 @@ extension Association where OriginRowDecoder: MutablePersistableRecord {
     ///     let team: Team = ...
     ///     let players = try team.players.fetchAll(db) // [Player]
     func request(from record: OriginRowDecoder) -> QueryInterfaceRequest<RowDecoder> {
-        let query = QueryInterfaceQuery(
-            source: .table(tableName: "TODO", alias: nil),
-            selection: [AllColumns()])
-        return QueryInterfaceRequest(query: query)
-        
-//        // Goal: turn `JOIN association ON association.recordId = record.id`
-//        // into a regular request `SELECT * FROM association WHERE association.recordId = 123`
-//
-//        // We need table aliases to build the joining condition
-//        let associationAlias = TableAlias()
-//        let recordAlias = TableAlias()
-//
-//        // Turn the association query into a query interface request:
-//        // JOIN association -> SELECT FROM association
-//        return QueryInterfaceRequest(query: query)
-//
-//            // Turn the JOIN condition into a regular WHERE condition
-//            .filter { db in
-//                // Build a join condition: `association.recordId = record.id`
-//                // We still need to replace `record.id` with the actual record id.
-//                let joinExpression = try self.condition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias)
-//
-//                // Serialize record: ["id": 123, ...]
-//                // We do it as late as possible, when request is about to be
-//                // executed, in order to support long-lived reference types.
-//                let container = PersistenceContainer(record)
-//
-//                // Replace `record.id` with 123
-//                return joinExpression.resolvedExpression(inContext: [recordAlias: container])
-//            }
-//
-//            // We just added a condition qualified with associationAlias. Don't
-//            // risk introducing conflicting aliases that would prevent the user
-//            // from setting a custom alias name: force the same alias for the
-//            // whole request.
-//            .aliased(associationAlias)
+        // Goal: turn `JOIN association ON association.recordId = record.id`
+        // into a regular request `SELECT * FROM association WHERE association.recordId = 123`
+
+        // We need table aliases to build the joining condition
+        let associationAlias = TableAlias()
+        let recordAlias = TableAlias()
+
+        // Turn the association query into a query interface request:
+        // JOIN association -> SELECT FROM association
+        return QueryInterfaceRequest(query: _impl.query)
+
+            // Turn the JOIN condition into a regular WHERE condition
+            .filter { db in
+                // Build a join condition: `association.recordId = record.id`
+                // We still need to replace `record.id` with the actual record id.
+                let joinExpression = try self._impl.joinCondition.sqlExpression(db, leftAlias: recordAlias, rightAlias: associationAlias)
+
+                // Serialize record: ["id": 123, ...]
+                // We do it as late as possible, when request is about to be
+                // executed, in order to support long-lived reference types.
+                let container = PersistenceContainer(record)
+
+                // Replace `record.id` with 123
+                return joinExpression.resolvedExpression(inContext: [recordAlias: container])
+            }
+
+            // We just added a condition qualified with associationAlias. Don't
+            // risk introducing conflicting aliases that would prevent the user
+            // from setting a custom alias name: force the same alias for the
+            // whole request.
+            .aliased(associationAlias)
     }
 }
 
